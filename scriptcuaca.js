@@ -1,14 +1,19 @@
-const apiKey = 'f885eadd34335a07e8846fcc212d32db';
+const apiKey = 'f885eadd34335a07e8846fcc212d32db'; 
 
 let chart = null;
 
 function getWeather() {
-  const city = document.getElementById('cityInput').value || 'Kuala Lumpur';
+  const city = document.getElementById('cityInput').value.trim();
+  if (!city) {
+    alert("Sila masukkan nama bandar atau negeri.");
+    return;
+  }
+
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
 
   fetch(url)
     .then(response => {
-      if (!response.ok) throw new Error("Bandar tidak dijumpai");
+      if (!response.ok) throw new Error("Bandar tidak dijumpai.");
       return response.json();
     })
     .then(data => {
@@ -18,6 +23,7 @@ function getWeather() {
       const weather = data.weather[0].description;
       const cityName = data.name;
 
+      // Tunjukkan data cuaca
       document.getElementById('weatherResult').innerHTML = `
         <h3>Cuaca di ${cityName}</h3>
         <p><strong>Suhu:</strong> ${temp}°C</p>
@@ -26,10 +32,12 @@ function getWeather() {
         <p><strong>Keadaan:</strong> ${weather}</p>
       `;
 
+      document.getElementById('weatherContainer').style.display = 'block';
       renderChart(temp, feelsLike, humidity);
     })
     .catch(error => {
       document.getElementById('weatherResult').innerHTML = `<p style="color:red;">${error.message}</p>`;
+      document.getElementById('weatherContainer').style.display = 'none';
     });
 }
 
@@ -37,7 +45,7 @@ function renderChart(temp, feelsLike, humidity) {
   const ctx = document.getElementById('weatherChart').getContext('2d');
 
   if (chart !== null) {
-    chart.destroy(); // Buang carta lama
+    chart.destroy(); // Buang carta lama jika ada
   }
 
   chart = new Chart(ctx, {
@@ -47,7 +55,7 @@ function renderChart(temp, feelsLike, humidity) {
       datasets: [{
         label: 'Data Cuaca',
         data: [temp, feelsLike, humidity],
-        backgroundColor: ['#007bff', '#17a2b8', '#ffc107']
+        backgroundColor: ['#00bcd4', '#2196f3', '#ffc107']
       }]
     },
     options: {
@@ -55,11 +63,14 @@ function renderChart(temp, feelsLike, humidity) {
         y: {
           beginAtZero: true
         }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: '#fff'
+          }
+        }
       }
     }
   });
 }
-
-// Auto-papar cuaca default
-getWeather();
-
