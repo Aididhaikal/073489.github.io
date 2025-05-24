@@ -1,11 +1,10 @@
 const apiKey = 'f885eadd34335a07e8846fcc212d32db'; 
-
 let chart = null;
 
 function getWeather() {
   const city = document.getElementById('cityInput').value.trim();
   if (!city) {
-    alert("Sila masukkan nama bandar atau negeri.");
+    alert("Please enter a city name.");
     return;
   }
 
@@ -13,30 +12,31 @@ function getWeather() {
 
   fetch(url)
     .then(response => {
-      if (!response.ok) throw new Error("Bandar tidak dijumpai.");
+      if (!response.ok) throw new Error("City not found.");
       return response.json();
     })
     .then(data => {
       const temp = data.main.temp;
       const feelsLike = data.main.feels_like;
       const humidity = data.main.humidity;
-      const weather = data.weather[0].description;
+      const wind = data.wind.speed;
+      const condition = data.weather[0].description;
       const cityName = data.name;
+      const country = data.sys.country;
 
-      // Tunjukkan data cuaca
-      document.getElementById('weatherResult').innerHTML = `
-        <h3>Cuaca di ${cityName}</h3>
-        <p><strong>Suhu:</strong> ${temp}°C</p>
-        <p><strong>Terasa Seperti:</strong> ${feelsLike}°C</p>
-        <p><strong>Kelembapan:</strong> ${humidity}%</p>
-        <p><strong>Keadaan:</strong> ${weather}</p>
-      `;
+      // Isi ke elemen HTML
+      document.getElementById('weatherTitle').innerText = `Weather in ${cityName}, ${country}`;
+      document.getElementById('temp').innerText = temp.toFixed(2);
+      document.getElementById('condition').innerText = condition;
+      document.getElementById('humidity').innerText = humidity;
+      document.getElementById('wind').innerText = wind;
 
       document.getElementById('weatherContainer').style.display = 'block';
+
       renderChart(temp, feelsLike, humidity);
     })
-    .catch(error => {
-      document.getElementById('weatherResult').innerHTML = `<p style="color:red;">${error.message}</p>`;
+    .catch(err => {
+      alert(err.message);
       document.getElementById('weatherContainer').style.display = 'none';
     });
 }
@@ -44,31 +44,34 @@ function getWeather() {
 function renderChart(temp, feelsLike, humidity) {
   const ctx = document.getElementById('weatherChart').getContext('2d');
 
-  if (chart !== null) {
-    chart.destroy(); // Buang carta lama jika ada
-  }
+  if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
-      labels: ['Suhu', 'Terasa Seperti', 'Kelembapan'],
+      labels: ['Temperature', 'Feels Like', 'Humidity'],
       datasets: [{
-        label: 'Data Cuaca',
+        label: 'Weather Metrics',
         data: [temp, feelsLike, humidity],
-        backgroundColor: ['#00bcd4', '#2196f3', '#ffc107']
+        backgroundColor: '#007bff33',
+        borderColor: '#007bff',
+        borderWidth: 2,
+        tension: 0.4
       }]
     },
     options: {
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: { color: '#333' }
+        },
+        x: {
+          ticks: { color: '#333' }
         }
       },
       plugins: {
         legend: {
-          labels: {
-            color: '#fff'
-          }
+          labels: { color: '#333' }
         }
       }
     }
