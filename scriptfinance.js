@@ -1,64 +1,84 @@
+let financeChart;
+
 async function getCryptoData() {
-  const coin = document.getElementById('cryptoInput').value.toLowerCase();
-  const url = `https://api.coingecko.com/api/v3/coins/${coin}`;
+  const crypto = document.getElementById("cryptoInput").value.toLowerCase();
+  const infoDiv = document.getElementById("financeInfo");
+  const chartCanvas = document.getElementById("financeChart");
+
+  infoDiv.innerHTML = "Loading...";
 
   try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Coin not found');
-    const data = await response.json();
+    // Fetch market data
+    const marketRes = await fetch(`https://api.coingecko.com/api/v3/coins/${crypto}`);
+    if (!marketRes.ok) throw new Error("Invalid cryptocurrency");
 
-    const name = data.name;
-    const price = data.market_data.current_price.usd;
-    const symbol = data.symbol.toUpperCase();
-    const history = await getCryptoMarketChart(coin);
+    const marketData = await marketRes.json();
 
-    document.getElementById('cryptoInfo').innerHTML = `
-      <strong>${name} (${symbol})</strong><br/>
-      Current Price: $${price}
+    const {
+      image,
+      market_data: {
+        current_price,
+        price_change_percentage_24h,
+        high_24h,
+        low_24h
+      }
+    } = marketData;
+
+    // Display info
+    infoDiv.innerHTML = `
+      <div class="bg-white p-4 rounded-lg shadow-md">
+        <div class="flex items-center gap-3 mb-3">
+          <img src="${image.thumb}" alt="Icon" class="w-10 h-10">
+          <h2 class="text-xl font-semibold">${marketData.name} (${marketData.symbol.toUpperCase()})</h2>
+        </div>
+        <p><strong>Current Price:</strong> $${current_price.usd.toLocaleString()}</p>
+        <p><strong>24h Change:</strong> ${price_change_percentage_24h.toFixed(2)}%</p>
+        <p><strong>High 24h:</strong> $${high_24h.usd.toLocaleString()}</p>
+        <p><strong>Low 24h:</strong> $${low_24h.usd.toLocaleString()}</p>
+      </div>
     `;
 
-    const ctx = document.getElementById('cryptoChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
+    // Fetch price history
+    const chartRes = await fetch(`https://api.coingecko.com/api/v3/coins/${crypto}/market_chart?vs_currency=usd&days=7`);
+    const chartData = await chartRes.json();
+
+    const labels = chartData.prices.map(price => {
+      const date = new Date(price[0]);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    });
+
+    const prices = chartData.prices.map(price => price[1]);
+
+    // Destroy old chart if exists
+    if (financeChart) financeChart.destroy();
+
+    financeChart = new Chart(chartCanvas, {
+      type: "line",
       data: {
-        labels: history.dates,
+        labels,
         datasets: [{
-          label: `${name} Price (USD)`,
-          data: history.prices,
-          backgroundColor: 'rgba(0,0,0,0.1)',
-          borderColor: 'black',
-          borderWidth: 2,
+          label: "Price (USD)",
+          data: prices,
+          borderColor: "#10B981",
+          backgroundColor: "rgba(16, 185, 129, 0.2)",
           fill: true,
-          tension: 0.4
+          tension: 0.4,
         }]
       },
       options: {
         responsive: true,
-        plugins: {
-          legend: {
-            display: true
+        scales: {
+          y: {
+            ticks: {
+              callback: value => "$" + value.toLocaleString()
+            }
           }
         }
       }
     });
 
   } catch (error) {
-    document.getElementById('cryptoInfo').innerText = 'Coin not found or error fetching data.';
+    infoDiv.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+    if (financeChart) financeChart.destroy();
   }
 }
-
-async function getCryptoMarketChart(coin) {
-  const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart?vs_currency=usd&days=7`;
-  const response = await fetch(url);
-  const data = await response.json();
-
-  const dates = data.prices.map(p => {
-    const d = new Date(p[0]);
-    return `${d.getMonth() + 1}/${d.getDate()}`;
-  });
-
-  const prices = data.prices.map(p => p[1].toFixed(2));
-
-  return { dates, prices };
-}
-
