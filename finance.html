@@ -1,1 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-white text-black font-sans p-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-3xl font-bold">Financial Dashboard</h1>
+      <a href="index.html" class="text-sm text-blue-600 hover:underline">← Back to Main</a>
+    </div>
+
+    <div class="mb-6">
+      <input id="cryptoInput" type="text" placeholder="Search cryptocurrency (e.g., bitcoin)"
+        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-300">
+      <button onclick="getCryptoData()"
+        class="mt-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">Search</button>
+    </div>
+
+    <div id="cryptoInfo" class="mb-6 text-lg text-gray-700"></div>
+
+    <canvas id="cryptoChart" height="100"></canvas>
+  </div>
+
+  <script src="scriptfinance.js"></script>
+</body>
+</html>
 
