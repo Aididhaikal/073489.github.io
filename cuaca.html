@@ -8,39 +8,43 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-white text-black font-sans p-4">
-  <div class="max-w-4xl mx-auto space-y-6">
+<body class="bg-gradient-to-br from-blue-100 via-white to-yellow-100 text-black font-sans min-h-screen p-4">
+
+  <div class="max-w-5xl mx-auto space-y-8">
     
-    <!-- Header -->
-    <div class="text-center">
-      <h1 class="text-4xl font-bold mb-2">🌤️ Weather Dashboard</h1>
-      <p class="text-gray-600">Check real-time weather by city</p>
+    <!-- Header + Back Button -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-4xl font-bold">🌤️ Weather Dashboard</h1>
+      <a href="index.html" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700 transition">
+        <i data-lucide="arrow-left"></i>
+        <span>Main Dashboard</span>
+      </a>
     </div>
+    <p class="text-gray-700 text-center sm:text-left">Check real-time weather by city</p>
 
     <!-- Search -->
-    <div class="flex justify-center gap-2">
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
       <input id="cityInput" type="text" placeholder="Enter city (e.g., Kuala Lumpur)"
-             class="border rounded-lg px-4 py-2 w-full max-w-md" />
-      <button onclick="getWeather()" class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
-        Search
+             class="border border-gray-300 rounded-xl px-4 py-3 w-full max-w-md shadow-md" />
+      <button onclick="getWeather()" class="bg-black text-white px-6 py-3 rounded-xl shadow hover:bg-gray-800 transition">
+        🔍 Search
       </button>
     </div>
 
     <!-- Weather Info -->
-    <div id="weatherInfo" class="grid sm:grid-cols-2 gap-4">
-      <!-- Akan diisi oleh scriptcuaca.js -->
+    <div id="weatherInfo" class="grid sm:grid-cols-2 gap-6">
+      <!-- Diisi oleh scriptcuaca.js -->
     </div>
 
     <!-- Chart -->
-    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-      <h2 class="text-lg font-semibold mb-2">Temperature Forecast</h2>
+    <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+      <h2 class="text-xl font-semibold mb-4 text-center text-blue-800">5-Day Temperature Forecast</h2>
       <canvas id="weatherChart" height="120"></canvas>
     </div>
   </div>
 
   <!-- Ikon -->
   <script> lucide.createIcons(); </script>
-  <!-- Script JS -->
   <script src="scriptcuaca.js"></script>
 </body>
 </html>
