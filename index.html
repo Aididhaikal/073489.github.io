@@ -5,80 +5,85 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Project</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     @keyframes fadeInZoom {
-      0% {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
     }
-
-    .animate-fade-in {
-      animation: fadeInZoom 0.8s ease-out forwards;
-    }
+    .animate-fade-in { animation: fadeInZoom 0.8s ease-out forwards; }
   </style>
 </head>
-<body class="bg-white text-black font-sans">
-  <div class="min-h-screen flex flex-col items-center justify-center p-4">
-    
-    <!-- Gambar Profil -->
-    <div class="mb-4 animate-fade-in">
-      <img src="your-profile.jpg" alt="Profile Picture"
-           class="w-40 h-40 rounded-full object-cover border-4 border-black shadow-lg" />
-    </div>
+<body class="min-h-screen bg-gradient-to-br from-pink-100 via-yellow-100 to-blue-100 text-black font-sans flex flex-col justify-between">
 
-    <!-- Tajuk -->
-    <div class="text-center mb-6 animate-fade-in">
-      <h1 class="text-4xl font-bold mb-2">Hello, I'm Aidid Haikal</h1>
-      <p class="text-lg text-gray-600 max-w-xl mx-auto">
+  <!-- Header -->
+  <header class="bg-white shadow p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-blue-700">🌐 My Dashboard Project</h1>
+    <nav>
+      <a href="#biodata" class="text-sm text-gray-600 hover:text-blue-600 mr-4">About Me</a>
+      <a href="cuaca.html" class="text-sm text-gray-600 hover:text-blue-600 mr-4">Weather</a>
+      <a href="finance.html" class="text-sm text-gray-600 hover:text-blue-600">Finance</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-3xl mx-auto flex flex-col items-center space-y-8 py-10 px-4 animate-fade-in">
+
+    <!-- Gambar & Intro -->
+    <div class="bg-white p-6 rounded-3xl shadow-xl flex flex-col items-center space-y-4 w-full">
+      <img src="your-profile.jpg" alt="Profile Picture"
+           class="w-44 h-44 rounded-full object-cover border-4 border-blue-400 shadow-md" />
+      <h2 class="text-4xl font-extrabold text-center text-blue-800">Hello, I'm Aidid Haikal</h2>
+      <p class="text-center text-gray-600 max-w-lg">
         I am a web development student currently working on a dashboard project for weather monitoring and financial markets.
       </p>
     </div>
 
     <!-- Biodata -->
-    <div class="bg-gray-100 p-6 rounded-xl shadow-md mb-8 w-full max-w-md space-y-3 text-sm sm:text-base animate-fade-in">
-      <div class="flex items-center gap-3">
-        <i data-lucide="user" class="w-5 h-5 text-black"></i>
-        <span><strong>Full Name:</strong> Muhammad Aidid Haikal Bin [Nama Bapa]</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <i data-lucide="calendar" class="w-5 h-5 text-black"></i>
-        <span><strong>Age:</strong> 22 years old</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <i data-lucide="book-open" class="w-5 h-5 text-black"></i>
-        <span><strong>Program:</strong> Bachelor of Computer Science (Web Development)</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <i data-lucide="graduation-cap" class="w-5 h-5 text-black"></i>
-        <span><strong>University:</strong> Universiti Teknologi MARA (UiTM)</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <i data-lucide="mail" class="w-5 h-5 text-black"></i>
-        <span><strong>Email:</strong> aididhaikal@example.com</span>
+    <div id="biodata" class="bg-white p-6 rounded-2xl shadow-lg w-full space-y-4">
+      <h2 class="text-xl font-bold text-blue-700 mb-2">👤 Biodata</h2>
+      <div class="grid gap-3">
+        <div class="flex items-center gap-3"><i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
+          <span><strong>Full Name:</strong> Muhammad Aidid Haikal Bin [Nama Bapa]</span>
+        </div>
+        <div class="flex items-center gap-3"><i data-lucide="calendar" class="w-5 h-5 text-blue-600"></i>
+          <span><strong>Age:</strong> 22 years old</span>
+        </div>
+        <div class="flex items-center gap-3"><i data-lucide="book-open" class="w-5 h-5 text-blue-600"></i>
+          <span><strong>Program:</strong> Bachelor of Computer Science (Web Development)</span>
+        </div>
+        <div class="flex items-center gap-3"><i data-lucide="graduation-cap" class="w-5 h-5 text-blue-600"></i>
+          <span><strong>University:</strong> Universiti Teknologi MARA (UiTM)</span>
+        </div>
+        <div class="flex items-center gap-3"><i data-lucide="mail" class="w-5 h-5 text-blue-600"></i>
+          <span><strong>Email:</strong> aididhaikal@example.com</span>
+        </div>
       </div>
     </div>
 
     <!-- Butang Menu -->
-    <div class="flex flex-col sm:flex-row gap-4 animate-fade-in">
-      <a href="cuaca.html" class="bg-black text-white px-6 py-3 rounded-2xl shadow hover:bg-gray-800 transition">
-        Weather Dashboard
+    <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+      <a href="cuaca.html"
+         class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-md text-center w-full sm:w-auto transition">
+        🌤️ Weather Dashboard
       </a>
-      <a href="finance.html" class="bg-black text-white px-6 py-3 rounded-2xl shadow hover:bg-gray-800 transition">
-        Financial Dashboard
+      <a href="finance.html"
+         class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl shadow-md text-center w-full sm:w-auto transition">
+        💹 Financial Dashboard
       </a>
     </div>
-  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white shadow-md p-4 text-center text-sm text-gray-500">
+    <div>© 2025 Aidid Haikal. All rights reserved.</div>
+    <div class="mt-1 flex justify-center gap-4">
+      <a href="mailto:aididhaikal@example.com" class="hover:text-blue-600">✉️ Email</a>
+      <a href="https://github.com/aididhaikal" target="_blank" class="hover:text-blue-600">🐙 GitHub</a>
+    </div>
+  </footer>
 
   <!-- Aktifkan ikon -->
-  <script>
-    lucide.createIcons();
-  </script>
+  <script> lucide.createIcons(); </script>
 </body>
 </html>
