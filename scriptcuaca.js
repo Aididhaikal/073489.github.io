@@ -1,85 +1,142 @@
-const apiKey = 'f885eadd34335a07e8846fcc212d32db'; // Ganti dengan API key kamu
-const weatherInfo = document.getElementById('weatherInfo');
-const cityInput = document.getElementById('cityInput');
-const chartCanvas = document.getElementById('weatherChart');
+const apiKey = "f885eadd34335a07e8846fcc212d32db"; // Ganti dengan API key kamu dari OpenWeather
+const weatherInfo = document.getElementById("weatherInfo");
+const cityInput = document.getElementById("cityInput");
 let weatherChart;
 
-// Fungsi utama
 async function getWeather() {
   const city = cityInput.value.trim();
-  if (!city) return alert("Please enter a city name");
-
-  // API URLs
-  const currentUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-  const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+  if (!city) return alert("Please enter a city.");
 
   try {
-    const [currentRes, forecastRes] = await Promise.all([
-      fetch(currentUrl),
-      fetch(forecastUrl)
-    ]);
-    
-    if (!currentRes.ok || !forecastRes.ok) throw new Error("City not found");
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+    );
+    if (!response.ok) throw new Error("City not found");
 
-    const currentData = await currentRes.json();
-    const forecastData = await forecastRes.json();
-
-    displayWeather(currentData);
-    displayChart(forecastData);
-
+    const data = await response.json();
+    displayWeather(data);
+    getForecast(city);
+    cityInput.value = ""; // Kosongkan input selepas cari
   } catch (error) {
-    alert(error.message);
-    weatherInfo.innerHTML = '';
-    if (weatherChart) weatherChart.destroy();
+    alert("Error: " + error.message);
   }
 }
 
-// Papar cuaca semasa
 function displayWeather(data) {
+  const weatherMain = data.weather[0].main;
+  let icon = "❓";
+
+  switch (weatherMain) {
+    case "Clear": icon = "☀️"; break;
+    case "Clouds": icon = "⛅"; break;
+    case "Rain": icon = "🌧️"; break;
+    case "Drizzle": icon = "🌦️"; break;
+    case "Thunderstorm": icon = "⛈️"; break;
+    case "Snow": icon = "❄️"; break;
+    case "Mist":
+    case "Fog":
+    case "Haze": icon = "🌫️"; break;
+    default: icon = "❓";
+  }
+
+  updateBackground(weatherMain);
+
   const html = `
-    <div class="bg-gray-100 p-4 rounded-xl shadow">
-      <h2 class="text-xl font-bold mb-2">${data.name}, ${data.sys.country}</h2>
-      <p class="text-gray-700 mb-1">🌡️ Temperature: ${data.main.temp} °C</p>
-      <p class="text-gray-700 mb-1">🌬️ Wind: ${data.wind.speed} m/s</p>
-      <p class="text-gray-700 mb-1">💧 Humidity: ${data.main.humidity}%</p>
-      <p class="text-gray-700">☁️ Weather: ${data.weather[0].description}</p>
+    <div class="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md border border-gray-200 space-y-2 text-center">
+      <h2 class="text-2xl font-bold">${data.name}, ${data.sys.country}</h2>
+      <div class="text-5xl">${icon}</div>
+      <p class="text-gray-800 text-lg">${weatherMain}</p>
+      <p>🌡️ <strong>${data.main.temp} °C</strong></p>
+      <p>💧 Humidity: ${data.main.humidity}%</p>
+      <p>🌬️ Wind: ${data.wind.speed} m/s</p>
+      <p class="italic text-gray-500">Updated just now</p>
     </div>
   `;
   weatherInfo.innerHTML = html;
 }
 
-// Papar carta suhu
-function displayChart(data) {
-  const labels = [];
-  const temps = [];
+function updateBackground(weatherMain) {
+  const body = document.body;
+  body.className = "";
 
-  // Ambil data 5 hari (setiap 3 jam → pilih waktu 12 tengah hari)
-  data.list.forEach(item => {
-    if (item.dt_txt.includes("12:00:00")) {
-      labels.push(item.dt_txt.split(' ')[0]);
-      temps.push(item.main.temp);
+  switch (weatherMain) {
+    case "Clear":
+      body.className = "bg-gradient-to-br from-yellow-100 via-yellow-200 to-white text-black";
+      break;
+    case "Clouds":
+      body.className = "bg-gradient-to-br from-gray-200 via-gray-100 to-white text-black";
+      break;
+    case "Rain":
+    case "Drizzle":
+      body.className = "bg-gradient-to-br from-blue-300 via-blue-500 to-gray-200 text-white";
+      break;
+    case "Thunderstorm":
+      body.className = "bg-gradient-to-br from-purple-800 via-gray-800 to-black text-white";
+      break;
+    case "Snow":
+      body.className = "bg-gradient-to-br from-blue-100 via-white to-gray-100 text-black";
+      break;
+    case "Mist":
+    case "Fog":
+    case "Haze":
+      body.className = "bg-gradient-to-br from-gray-300 via-gray-100 to-white text-black";
+      break;
+    default:
+      body.className = "bg-white text-black";
+  }
+}
+
+async function getForecast(city) {
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
+    );
+    const data = await response.json();
+
+    const labels = [];
+    const temps = [];
+
+    // Ambil data setiap 3 jam, tapi kita pilih satu per 8 jam (3x8 = 24 jam)
+    for (let i = 0; i < data.list.length; i += 8) {
+      const time = new Date(data.list[i].dt_txt);
+      labels.push(time.toLocaleDateString("en-MY", { weekday: "short" }));
+      temps.push(data.list[i].main.temp);
     }
-  });
 
-  if (weatherChart) weatherChart.destroy();
+    drawChart(labels, temps);
+  } catch (error) {
+    console.error("Forecast error:", error);
+  }
+}
 
-  weatherChart = new Chart(chartCanvas, {
-    type: 'line',
+function drawChart(labels, temps) {
+  const ctx = document.getElementById("weatherChart").getContext("2d");
+
+  if (weatherChart) weatherChart.destroy(); // Reset chart dulu
+
+  weatherChart = new Chart(ctx, {
+    type: "line",
     data: {
       labels: labels,
       datasets: [{
-        label: 'Temp (°C)',
+        label: "Forecast (°C)",
         data: temps,
-        borderColor: 'black',
-        backgroundColor: 'rgba(0,0,0,0.1)',
+        borderColor: "#2563eb",
+        backgroundColor: "rgba(37, 99, 235, 0.2)",
+        tension: 0.4,
         fill: true,
-        tension: 0.3
+        pointRadius: 4,
+        pointBackgroundColor: "#1e40af"
       }]
     },
     options: {
       responsive: true,
+      plugins: {
+        legend: { display: true }
+      },
       scales: {
         y: {
+          title: { display: true, text: "Temperature (°C)" },
           beginAtZero: false
         }
       }
