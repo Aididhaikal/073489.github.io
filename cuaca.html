@@ -31,9 +31,11 @@
       </button>
     </div>
 
-    <!-- Weather Info -->
-    <div id="weatherInfo" class="grid sm:grid-cols-2 gap-6">
-      <!-- Diisi oleh scriptcuaca.js -->
+    <!-- Weather Info (centered box) -->
+    <div class="flex justify-center">
+      <div id="weatherInfo" class="grid sm:grid-cols-2 gap-6 max-w-3xl w-full">
+        <!-- Diisi oleh scriptcuaca.js -->
+      </div>
     </div>
 
     <!-- Chart -->
@@ -41,10 +43,16 @@
       <h2 class="text-xl font-semibold mb-4 text-center text-blue-800">5-Day Temperature Forecast</h2>
       <canvas id="weatherChart" height="120"></canvas>
     </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-sm text-gray-600 mt-12 pt-6 border-t">
+      &copy; 2025 Aidid Haikal | Weather Dashboard | Built with HTML, JS & Tailwind CSS
+    </footer>
   </div>
 
-  <!-- Ikon -->
+  <!-- Lucide Icons -->
   <script> lucide.createIcons(); </script>
+  <!-- JS Script -->
   <script src="scriptcuaca.js"></script>
 </body>
 </html>
