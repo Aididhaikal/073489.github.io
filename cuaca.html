@@ -14,7 +14,7 @@
     
     <!-- Header + Back Button -->
     <div class="flex items-center justify-between">
-      <h1 class="text-4xl font-bold">🌤️ Weather Monitoring</h1>
+      <h1 class="text-4xl font-bold">🌤 Weather Monitoring</h1>
       <a href="index.html" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700 transition">
         <i data-lucide="arrow-left"></i>
         <span>Home</span>
@@ -31,11 +31,9 @@
       </button>
     </div>
 
-    <!-- Weather Info (centered) -->
-    <div class="flex justify-center">
-      <div id="weatherInfo" class="w-full max-w-lg text-center">
-        <!-- Filled by scriptcuaca.js -->
-      </div>
+    <!-- Weather Info -->
+    <div id="weatherInfo" class="grid sm:grid-cols-2 gap-6">
+      <!-- Diisi oleh scriptcuaca.js -->
     </div>
 
     <!-- Chart -->
@@ -43,16 +41,10 @@
       <h2 class="text-xl font-semibold mb-4 text-center text-blue-800">5-Day Temperature Forecast</h2>
       <canvas id="weatherChart" height="120"></canvas>
     </div>
-
-    <!-- Footer -->
-    <footer class="text-center text-sm text-gray-600 mt-12 pt-6 border-t">
-      &copy; 2025 Aidid Haikal | Weather Dashboard | Built with HTML, JS & Tailwind CSS
-    </footer>
   </div>
 
-  <!-- Lucide Icons -->
+  <!-- Ikon -->
   <script> lucide.createIcons(); </script>
-  <!-- JS Script -->
   <script src="scriptcuaca.js"></script>
 </body>
 </html>
