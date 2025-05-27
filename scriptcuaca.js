@@ -1,145 +1,104 @@
-const apiKey = "f885eadd34335a07e8846fcc212d32db"; // Ganti dengan API key kamu dari OpenWeather
-const weatherInfo = document.getElementById("weatherInfo");
-const cityInput = document.getElementById("cityInput");
-let weatherChart;
+const apiKey = "f885eadd34335a07e8846fcc212d32db"; 
+let chartInstance = null;
 
 async function getWeather() {
-  const city = cityInput.value.trim();
-  if (!city) return alert("Please enter a city.");
+  const city = document.getElementById("cityInput").value.trim();
+  if (!city) return alert("Please enter a city name.");
+
+  const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+  const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
 
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
-    );
-    if (!response.ok) throw new Error("City not found");
+    const [weatherRes, forecastRes] = await Promise.all([
+      fetch(weatherUrl),
+      fetch(forecastUrl)
+    ]);
 
-    const data = await response.json();
-    displayWeather(data);
-    getForecast(city);
-    cityInput.value = ""; // Kosongkan input selepas cari
-  } catch (error) {
-    alert("Error: " + error.message);
+    if (!weatherRes.ok || !forecastRes.ok) throw new Error("City not found");
+
+    const weatherData = await weatherRes.json();
+    const forecastData = await forecastRes.json();
+
+    displayWeather(weatherData);
+    displayForecast(forecastData);
+    changeBackground(weatherData.weather[0].main);
+  } catch (err) {
+    alert("Error fetching weather data.");
+    console.error(err);
   }
 }
 
 function displayWeather(data) {
-  const weatherMain = data.weather[0].main;
-  let icon = "❓";
+  const container = document.getElementById("weatherInfo");
+  const icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 
-  switch (weatherMain) {
-    case "Clear": icon = "☀️"; break;
-    case "Clouds": icon = "⛅"; break;
-    case "Rain": icon = "🌧️"; break;
-    case "Drizzle": icon = "🌦️"; break;
-    case "Thunderstorm": icon = "⛈️"; break;
-    case "Snow": icon = "❄️"; break;
-    case "Mist":
-    case "Fog":
-    case "Haze": icon = "🌫️"; break;
-    default: icon = "❓";
-  }
-
-  updateBackground(weatherMain);
-
-  const html = `
-    <div class="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md border border-gray-200 space-y-2 text-center">
-      <h2 class="text-2xl font-bold">${data.name}, ${data.sys.country}</h2>
-      <div class="text-5xl">${icon}</div>
-      <p class="text-gray-800 text-lg">${weatherMain}</p>
-      <p>🌡️ <strong>${data.main.temp} °C</strong></p>
+  container.innerHTML = `
+    <div class="bg-white p-6 rounded-2xl shadow-md border text-center space-y-2">
+      <h2 class="text-xl font-bold text-blue-700">${data.name}, ${data.sys.country}</h2>
+      <img src="${icon}" alt="Weather Icon" class="w-20 h-20 mx-auto" />
+      <p class="text-lg font-semibold">${data.weather[0].description}</p>
+      <p>🌡️ <strong>${data.main.temp}°C</strong> (Feels like ${data.main.feels_like}°C)</p>
       <p>💧 Humidity: ${data.main.humidity}%</p>
       <p>🌬️ Wind: ${data.wind.speed} m/s</p>
-      <p class="italic text-gray-500">Updated just now</p>
     </div>
   `;
-  weatherInfo.innerHTML = html;
 }
 
-function updateBackground(weatherMain) {
-  const body = document.body;
-  body.className = "";
+function displayForecast(data) {
+  const labels = [];
+  const temps = [];
 
-  switch (weatherMain) {
-    case "Clear":
-      body.className = "bg-gradient-to-br from-yellow-100 via-yellow-200 to-white text-black";
-      break;
-    case "Clouds":
-      body.className = "bg-gradient-to-br from-gray-200 via-gray-100 to-white text-black";
-      break;
-    case "Rain":
-    case "Drizzle":
-      body.className = "bg-gradient-to-br from-blue-300 via-blue-500 to-gray-200 text-white";
-      break;
-    case "Thunderstorm":
-      body.className = "bg-gradient-to-br from-purple-800 via-gray-800 to-black text-white";
-      break;
-    case "Snow":
-      body.className = "bg-gradient-to-br from-blue-100 via-white to-gray-100 text-black";
-      break;
-    case "Mist":
-    case "Fog":
-    case "Haze":
-      body.className = "bg-gradient-to-br from-gray-300 via-gray-100 to-white text-black";
-      break;
-    default:
-      body.className = "bg-white text-black";
+  // Ambil 1 data setiap 8 (3 jam x 8 = 24 jam = 1 hari)
+  for (let i = 0; i < data.list.length; i += 8) {
+    const entry = data.list[i];
+    const date = new Date(entry.dt_txt);
+    labels.push(date.toLocaleDateString("en-MY", { weekday: "short", day: "numeric" }));
+    temps.push(entry.main.temp);
   }
-}
 
-async function getForecast(city) {
-  try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
-    );
-    const data = await response.json();
-
-    const labels = [];
-    const temps = [];
-
-    // Ambil data setiap 3 jam, tapi kita pilih satu per 8 jam (3x8 = 24 jam)
-    for (let i = 0; i < data.list.length; i += 8) {
-      const time = new Date(data.list[i].dt_txt);
-      labels.push(time.toLocaleDateString("en-MY", { weekday: "short" }));
-      temps.push(data.list[i].main.temp);
-    }
-
-    drawChart(labels, temps);
-  } catch (error) {
-    console.error("Forecast error:", error);
-  }
-}
-
-function drawChart(labels, temps) {
   const ctx = document.getElementById("weatherChart").getContext("2d");
 
-  if (weatherChart) weatherChart.destroy(); // Reset chart dulu
+  if (chartInstance) chartInstance.destroy(); 
 
-  weatherChart = new Chart(ctx, {
+  chartInstance = new Chart(ctx, {
     type: "line",
     data: {
       labels: labels,
       datasets: [{
-        label: "Forecast (°C)",
+        label: "Temperature (°C)",
         data: temps,
-        borderColor: "#2563eb",
-        backgroundColor: "rgba(37, 99, 235, 0.2)",
-        tension: 0.4,
+        backgroundColor: "rgba(59,130,246,0.2)",
+        borderColor: "rgba(59,130,246,1)",
+        borderWidth: 2,
+        tension: 0.3,
         fill: true,
-        pointRadius: 4,
-        pointBackgroundColor: "#1e40af"
+        pointRadius: 4
       }]
     },
     options: {
       responsive: true,
       plugins: {
-        legend: { display: true }
-      },
-      scales: {
-        y: {
-          title: { display: true, text: "Temperature (°C)" },
-          beginAtZero: false
+        legend: {
+          display: true
         }
       }
     }
   });
+}
+
+function changeBackground(condition) {
+  const body = document.body;
+  const conditions = {
+    Clear: "from-yellow-100 via-white to-blue-100",
+    Rain: "from-gray-400 via-blue-200 to-gray-100",
+    Clouds: "from-gray-200 via-gray-100 to-white",
+    Thunderstorm: "from-purple-400 via-blue-300 to-gray-100",
+    Snow: "from-blue-100 via-white to-blue-200",
+    Mist: "from-gray-100 via-white to-gray-300"
+  };
+
+  const defaultClass = "from-blue-100 via-white to-yellow-100";
+  const gradientClass = conditions[condition] || defaultClass;
+
+  body.className = `bg-gradient-to-br ${gradientClass} text-black font-sans min-h-screen p-4`;
 }
